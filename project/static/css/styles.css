@@ -8,13 +8,16 @@ html {
 .login-img-col {
 	height: 100vh !important;
 }
+.login-register-form {
+	width: 60%;
+}
 .nav-link:hover {
 	color: #f5f5f5 !important;
 }
 .login-form {
 	margin-top: 100px !important;
 }
-.btn:focus, .btn:active {
+.btn:focus, .btn:active, button:focus, button:active {
 	outline: none !important;
 	box-shadow: none !important;
 }
@@ -44,35 +47,40 @@ html {
 }
 
 @media (max-width: 768px) {
-  .book-detail-thumb img {
-  	/*border: 10px solid black !important;*/
-  	width: 300px !important;
-  }
+	.book-detail-thumb img {
+		width: 300px !important;
+	}
+	.login-register-form {
+		width: 75% !important;
+	}
+	.index-nav {
+		text-align: center !important;
+	}
 }
 
 /*Styles relating book reviewing*/
 .rating { 
-  border: none;
-  float: left;
+	border: none;
+	float: left;
 }
 
 .rating > input { display: none; } 
 .rating > label:before { 
-  margin: 5px;
-  font-size: 1.25em;
-  font-family: FontAwesome;
-  display: inline-block;
-  content: "\f005";
+	margin: 5px;
+	font-size: 1.25em;
+	font-family: FontAwesome;
+	display: inline-block;
+	content: "\f005";
 }
 
 .rating > .half:before { 
-  content: "\f089";
-  position: absolute;
+	content: "\f089";
+	position: absolute;
 }
 
 .rating > label { 
-  color: #ddd; 
- float: right; 
+	color: #ddd; 
+	float: right; 
 }
 
 /***** CSS Magic to Highlight Stars on Hover *****/

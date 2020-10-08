@@ -15,7 +15,7 @@
         </div>
      {% endif %}
     {% endwith %}
-    <form method="post" action="{{ url_for('auth.login_post', next=next) }}" class="w-50 mx-auto login-form" autocomplete="off">
+    <form method="post" action="{{ url_for('auth.login_post', next=next) }}" class="login-register-form mx-auto login-form" autocomplete="off">
       <h3>Login</h3>
       <a href="{{ url_for('auth.signup') }}" class="text-muted">Don't already have an account? Register here.</a>
       <hr />
