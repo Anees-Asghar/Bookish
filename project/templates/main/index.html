@@ -1,0 +1,204 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+  body {background-color: #F1F8FA !important;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+  
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="alert alert-dismissible alert-primary p-3 mx-2 mt-2">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <p class="mb-0">
+          {{ messages[0] }}
+        </p>
+      </div>
+   {% endif %}
+  {% endwith %}
+
+<!--   <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" data-toggle="tab" href="#reading_now">Reading Now</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#have_read">Have Read</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#to_read">To Read</a>
+    </li>
+  </ul> -->
+  <div class="text-right py-3 px-4">
+    <div class="btn-group rounded overflow-hidden">
+      <a href="#reading_now" data-toggle="tab" class="btn btn-tab btn-outline-primary active">Reading Now</a>
+      <a href="#have_read" data-toggle="tab" class="btn btn-tab btn-outline-primary">Have Read</a>
+      <a href="#to_read" data-toggle="tab" class="btn btn-tab btn-outline-primary">To Read</a>
+    </div>
+  </div>
+
+  <div id="myTabContent" class="tab-content">  
+    <div id="reading_now" class="tab-pane fade active show col-10 col-md-8 col-lg-6 mx-auto px-0 py-5 text-center" style="min-height: 100vh;">
+      <h4>Reading Now</h4>
+      <hr>
+
+      {% if reading_nows %}
+      <div class="row m-0 my-5 p-0">
+
+        {% for item in reading_nows %}
+        <div class="booktile col-6 col-sm-4 col-lg-3">
+          <img src="{{ item.Book.small_url }}" style="height: 265px;">
+          <div class="booktile-overlay p-3">
+            <p class="text-light text-left">
+              {{ item.Book.title }} <br>
+              <span class="small">
+                <em>{{ item.Book.authors | title }}</em>
+              </span>
+            </p>
+            <div class="btn-group rounded overflow-hidden">
+              <a href="{{ url_for('main.detail', book_id=item.Book.book_id) }}" role="button" class="btn btn-success border-0" title="More Info on this Book.">View</a>
+              <button id="{{ item.Book.book_id }}" class="btn-have-read btn btn-primary rounded-0 border-0" title="Add this book to 'Have Read'." data-toggle="modal" data-target="#reviewModal"><strong>&#10004;</strong></button>
+              <form method="post" action="{{ url_for('main.remove_all_relations') }}">
+                <input type="hidden" name="book_id" value="{{ item.Book.book_id }}">
+                <input type="hidden" name="next_url" value="{{ url_for('main.index') }}">
+                <button type="submit" class="btn btn-danger rounded-0 border-0" title="Remove this book from 'Reading Now'."><strong>&times;</strong></a>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+      {% else %}
+      <p class="text-muted">
+          Nothing to see here.
+      </p>
+      {% endif %}
+    </div>
+
+    <div id="have_read" class="tab-pane fade col-10 col-md-8 col-lg-6 mx-auto px-0 py-5 text-center" style="min-height: 100vh;">
+      <h4>Have Read</h4>
+      <hr>
+
+      {% if have_reads %}
+      <div class="row m-0 my-5 p-0">
+
+        {% for item in have_reads %}
+        <div class="booktile col-6 col-sm-4 col-lg-3">
+          <img src="{{ item.Book.small_url }}" style="height: 265px;">
+          <div class="booktile-overlay p-3">
+            <p class="text-light text-left">
+              {{ item.Book.title }} <br>
+              <span class="small">
+                <em>{{ item.Book.authors | title }}</em>
+              </span>
+            </p>
+              <a href="{{ url_for('main.detail', book_id=item.Book.book_id) }}" role="button" class="btn btn-success border-0 rounded" title="More Info on this Book.">View</a>
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+      {% else %}
+      <p class="text-muted">
+          Nothing to see here.
+      </p>
+      {% endif %}
+    </div>
+
+    <div id="to_read" class="tab-pane fade col-10 col-md-8 col-lg-6 mx-auto px-0 py-5 text-center" style="min-height: 100vh;">
+      <h4>To Read</h4>
+      <hr>
+
+      {% if to_reads %}
+      <div class="row m-0 my-5 p-0">
+
+        {% for item in to_reads %}
+        <div class="booktile col-6 col-sm-4 col-lg-3">
+          <img src="{{ item.Book.small_url }}" style="height: 265px;">
+          <div class="booktile-overlay p-3">
+            <p class="text-light text-left">
+              {{ item.Book.title }} <br>
+              <span class="small">
+                <em>{{ item.Book.authors | title }}</em>
+              </span>
+            </p>
+            <div class="btn-group rounded overflow-hidden">
+              <a href="{{ url_for('main.detail', book_id=item.Book.book_id) }}" role="button" class="btn btn-success border-0" title="More Info on this Book.">View</a>
+              <form style="display: inline;" method="post" action="{{ url_for('main.add_relation') }}">
+                <input type="hidden" name="book_id" value="{{ item.Book.book_id }}">
+                <input type="hidden" name="relation" value="reading_now" />
+                <input type="hidden" name="next_url" value="{{ url_for('main.index') }}" />
+                <button type="submit"  class="btn btn-primary rounded-0 border-0" title="Add this Book to 'Reading Now'."><strong>&#x2b;</strong></button>
+              </form>
+              <form method="post" action="{{ url_for('main.remove_all_relations') }}">
+                <input type="hidden" name="book_id" value="{{ item.Book.book_id }}">
+                <input type="hidden" name="next_url" value="{{ url_for('main.index') }}">
+                <button type="submit" class="btn btn-danger rounded-0 border-0" title="Remove this book from 'To Read'."><strong>&times;</strong></a>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+      {% else %}
+      <p class="text-muted">
+          Nothing to see here.
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
+<!-- Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-body text-center">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="exampleModalLongTitle">Rating and Review</h4>
+          <form method="post" action="{{ url_for('main.add_relation') }}">
+
+            <input type="hidden" name="relation" value="have_read" />
+            <input type="hidden" id="modalBookID" name="book_id" value="" />
+
+            <div class="row justify-content-center my-3">
+              <fieldset class="rating">
+                <input type="radio" id="star5" name="rating" value="5" />
+                <label class = "full" for="star5" title="Awesome - 5 stars"></label>
+                <input type="radio" id="star4half" name="rating" value="4.5" />
+                <label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+                <input type="radio" id="star4" name="rating" value="4" />
+                <label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+                <input type="radio" id="star3half" name="rating" value="3.5" />
+                <label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+                <input type="radio" id="star3" name="rating" value="3" />
+                <label class = "full" for="star3" title="Meh - 3 stars"></label>
+                <input type="radio" id="star2half" name="rating" value="2.5" />
+                <label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+                <input type="radio" id="star2" name="rating" value="2" />
+                <label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+                <input type="radio" id="star1half" name="rating" value="1.5" />
+                <label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+                <input type="radio" id="star1" name="rating" value="1" />
+                <label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+                <input type="radio" id="starhalf" name="rating" value="0.5" />
+                <label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>
+              </fieldset>
+            </div>
+            <div class="form-group">
+              <textarea class="form-control" rows=5 name="review" placeholder="How'd you like it?"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success pull-right">Submit</button>
+          </form>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

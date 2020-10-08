@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ query_string if query_string else 'Not Provided' }}{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+  body {background-color: #F1F8FA !important;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+  <div class="col-10 col-md-8 col-xl-6 mx-auto px-0 py-5 text-center" style="min-height: 100vh;">
+    <h4>Search Results for "{{ query_string }}"</h4>
+    <hr>
+
+    {% if books %}
+    <div class="row m-0 my-5 p-0">
+
+      {% for book in books %}
+      <div class="booktile col-6 col-sm-4 col-xl-3 overflow-hidden">
+        <img src="{{ book.small_url }}" style="height: 265px;">
+        <div class="booktile-overlay p-3">
+          <p class="text-light text-left small m-0">
+            {{ book.title | truncate(45) }} <br>
+            <em>{{ book.authors | truncate(40) | safe }}</em>
+          </p>
+          <hr class="my-1 border-light">
+          <p class="text-light text-left small mb-2">
+            {{ book.description | truncate(120) }}
+          </p>
+	      <a href="{{ url_for('main.detail', book_id=book.book_id) }}" role="button" class="btn btn-success rounded-left border-0" title="View Book Detail.">View</a>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+    {% else %}
+    <p class="text-muted">
+        No relevant results :(
+    </p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

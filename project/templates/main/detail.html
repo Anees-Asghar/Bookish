@@ -1,0 +1,242 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+  body {background-color: #F1F8FA !important;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+	<div class="col-11 col-sm-10 mx-auto px-0 py-5 text-center" style="min-height: 100vh;">
+	  <h3>{{ book.title }}</h3>
+	  <hr>
+
+	  <div class="row m-0 p-0 text-left">
+
+	  	<div class="book-detail-thumb col-12 col-md-4 col-lg-3 m-0 mt-5 p-0 rounded-0 text-center">
+		    <img class="shadow d-block w-100 mx-auto" src="{{ book.large_url }}">
+	        <p class="mt-2">
+	          <a class="text-primary" href="{{ book.preview_link }}" target="_blank">
+	            Google Books &nbsp;<i class="fa fa-external-link-square" aria-hidden="true"></i>
+	          </a>
+	        </p>
+	  	</div>
+
+	    <div class="col-12 col-md-8 col-lg-9 card border-0 bg-transparent px-4 mt-5">
+	      <div class="card-header">Author: {{ book.authors}}</div>
+	      <div class="card-body px-2">
+
+	      	<!-- Book Details -->
+	      	{% if avg_rating.rating %}
+	        	<h5><span class="badge badge-primary p-2 mb-2">Rating: {{ avg_rating.rating }} / 5</span></h5>
+	        {% endif %}
+	        <h5 class="card-title">Published: {{ book.published_date }}</h5>
+	        <p class="card-text text-dark">
+	          {{ book.description | safe }}
+	        </p>
+	        <p class="text-primary">Categories: {{ book.categories }}</p>
+
+	        <!-- Control Buttons -->
+	        <div class="controls">
+	        	{% if user_relation == 'reading_now' %}
+				<button class="btn btn-warning mb-2 mr-1" role="button" data-toggle="modal" data-target="#reviewModal">Add to 'Have Read'</button>
+				<form style="display: inline;" method="post" action="{{ url_for('main.remove_all_relations') }}">
+					<input type="hidden" name="book_id" value="{{ book.book_id }}">
+					<input type="hidden" name="next_url" value="{{ url_for('main.detail', book_id=book.book_id) }}">
+					<button type="submit" class="btn btn-danger mb-2 mr-1">Remove from 'Reading Now'</a>
+				</form>
+				<form style="display: inline;" method="post" action="{{ url_for('main.add_relation') }}">
+					<input type="hidden" name="book_id" value="{{ book.book_id }}">
+					<input type="hidden" name="relation" value="to_read" />
+					<input type="hidden" name="next_url" value="{{ url_for('main.detail', book_id=book.book_id) }}">
+					<button type="submit" class="btn btn-info mb-2 mr-1">Add to 'To Read'</button>
+				</form>
+				{% elif user_relation == 'to_read' %}
+				<button class="btn btn-warning mb-2 mr-1" role="button" data-toggle="modal" data-target="#reviewModal">Add to 'Have-Read'</button>
+				<form style="display: inline;" method="post" action="{{ url_for('main.add_relation') }}">
+					<input type="hidden" name="book_id" value="{{ book.book_id }}">
+					<input type="hidden" name="relation" value="reading_now" />
+					<input type="hidden" name="next_url" value="{{ url_for('main.detail', book_id=book.book_id) }}">
+					<button type="submit" class="btn btn-success mb-2 mr-1">Add to 'Reading Now'</button>
+				</form>
+				<form style="display: inline;" method="post" action="{{ url_for('main.remove_all_relations') }}">
+					<input type="hidden" name="book_id" value="{{ book.book_id }}">
+					<input type="hidden" name="next_url" value="{{ url_for('main.detail', book_id=book.book_id) }}">
+					<button type="submit" class="btn btn-danger mb-2 mr-1">Remove from 'To Read'</a>
+				</form>
+				{% elif user_relation == 'have_read' %}
+					<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#removeReviewModal">
+					  Remove From Have Read
+					</button>
+				{% elif not user_relation %}
+				<button class="btn btn-warning mb-2 mr-1" role="button" data-toggle="modal" data-target="#reviewModal">Add to 'Have Read'</button>
+				<form style="display: inline;" method="post" action="{{ url_for('main.add_relation') }}">
+					<input type="hidden" name="book_id" value="{{ book.book_id }}">
+					<input type="hidden" name="relation" value="reading_now" />
+					<input type="hidden" name="next_url" value="{{ url_for('main.detail', book_id=book.book_id) }}">
+					<button type="submit" class="btn btn-success mb-2 mr-1">Add to 'Reading Now'</button>
+				</form>
+				<form style="display: inline;" method="post" action="{{ url_for('main.add_relation') }}">
+					<input type="hidden" name="book_id" value="{{ book.book_id }}">
+					<input type="hidden" name="relation" value="to_read" />
+					<input type="hidden" name="next_url" value="{{ url_for('main.detail', book_id=book.book_id) }}">
+					<button type="submit" class="btn btn-info mb-2 mr-1">Add to 'To Read'</button>
+				</form>
+				{% endif %}
+	        </div>
+
+	        <hr>
+
+	        {% if reviews or user_review %}
+	        <div class="reviews">
+
+	            <h3 class="text-primary text-center mt-5 mb-5">Community Reviews</h3>
+
+	            {% if user_review %}
+	            <div class="card bg-light shadow-sm border-0 mb-5">
+	              <div class="card-body mx-3">
+	                <h5>
+	                	<span class="text-primary float-right" style="font-size: 0.9em;">
+	                		{% set vars = {'rating': user_review.rating} %}
+	                	  
+		                	{% for i in range(5) %}
+		                		{% if vars.rating >= 1 %}
+			                		<i class="fa fa-star" aria-hidden="true"></i>
+			                		{% if vars.update({'rating': vars.rating-1}) %}{% endif %}
+		                		{% elif vars.rating == 0.5 %}
+			                		<i class="fa fa-star-half-o" aria-hidden="true"></i>
+			                		{% if vars.update({'rating': vars.rating-0.5}) %}{% endif %}
+		                		{% else %}
+			                		<i class="fa fa-star-o" aria-hidden="true"></i>
+		                		{% endif %}
+		                	{% endfor %}
+	                    </span>
+	                    <span class="text-danger">You</span> reviewed this on <span style="font-size:0.9em;">{{ user_review.last_modified }}</span>:
+	                </h5>
+	                {% if user_review.review %}
+	                <p class="mb-0">
+	                  {{ user_review.review }}
+	                </p>
+	                {% else %}
+	                <p class="mb-0 text-dark">
+	                  No comment.
+	                </p>
+	                {% endif %}
+	              </div>
+	            </div>
+	            {% endif %}
+
+	            {% for review in reviews %}
+	            
+	            <div class="px-4 mb-4 border-bottom border-danger">
+	            	<h5>
+
+	                	<span class="text-primary float-right" style="font-size: 0.9em;">
+	                    	{% set vars = {'rating': review.User_Book.rating} %}
+	                	  
+		                	{% for i in range(5) %}
+		                		{% if vars.rating >= 1 %}
+			                		<i class="fa fa-star" aria-hidden="true"></i>
+			                		{% if vars.update({'rating': vars.rating-1}) %}{% endif %}
+		                		{% elif vars.rating == 0.5 %}
+			                		<i class="fa fa-star-half-o" aria-hidden="true"></i>
+			                		{% if vars.update({'rating': vars.rating-0.5}) %}{% endif %}
+		                		{% else %}
+			                		<i class="fa fa-star-o" aria-hidden="true"></i>
+		                		{% endif %}
+		                	{% endfor %}
+	                    </span>
+	                    <span class="text-success">{{ review.User.username }}</span> reviewed this on <span style="font-size:0.9em;">{{ user_review.last_modified }}</span>:
+	                </h5>
+	              {% if review.User_Book.review %}
+	              <p>
+	              	{{ review.User_Book.review }}
+	              </p>
+	              {% else %}
+	              <p class="text-dark">
+	                No comment.
+	              </p>
+	              {% endif %}
+	            </div>
+	            
+	            {% endfor %}
+	        </div>
+	        {% endif %}
+
+	      </div>
+	    </div>
+	  </div>
+	</div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-body text-center">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="exampleModalLongTitle">Rating and Review</h4>
+          <form method="post" action="{{ url_for('main.add_relation') }}">
+
+            <input type="hidden" name="book_id" value="{{ book.book_id }}" />
+            <input type="hidden" name="relation" value="have_read" />
+			<input type="hidden" name="next_url" value="{{ url_for('main.detail', book_id=book.book_id) }}">
+
+            <div class="row justify-content-center my-3">
+              <fieldset class="rating">
+                <input type="radio" id="star5" name="rating" value="5" />
+                <label class = "full" for="star5" title="Awesome - 5 stars"></label>
+                <input type="radio" id="star4half" name="rating" value="4.5" />
+                <label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+                <input type="radio" id="star4" name="rating" value="4" />
+                <label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+                <input type="radio" id="star3half" name="rating" value="3.5" />
+                <label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+                <input type="radio" id="star3" name="rating" value="3" />
+                <label class = "full" for="star3" title="Meh - 3 stars"></label>
+                <input type="radio" id="star2half" name="rating" value="2.5" />
+                <label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+                <input type="radio" id="star2" name="rating" value="2" />
+                <label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+                <input type="radio" id="star1half" name="rating" value="1.5" />
+                <label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+                <input type="radio" id="star1" name="rating" value="1" />
+                <label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+                <input type="radio" id="starhalf" name="rating" value="0.5" />
+                <label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>
+              </fieldset>
+            </div>
+            <div class="form-group">
+              <textarea class="form-control" rows=5 name="review" placeholder="How'd you like it?"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success pull-right">Submit</button>
+          </form>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Remove Review Modal -->
+<div class="modal fade" id="removeReviewModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+      	<p>
+	        Are you sure you want to remove this book from 'Have-Read'? Your rating / review will also be lost.
+      	</p>
+      	<form method="post" action="{{ url_for('main.remove_all_relations') }}">
+          <input type="hidden" name="book_id" value="{{ book.book_id }}">
+          <input type="hidden" name="next_url" value="{{ url_for('main.detail', book_id=book.book_id) }}">
+          <button type="submit" class="btn btn-primary float-right">Yes, I'm Sure.</a>
+      	</form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
