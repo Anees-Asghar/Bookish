@@ -9,11 +9,12 @@ def fetch_books(query_string):
 
 	url = 'https://www.googleapis.com/books/v1/volumes?q=' + str(query_string)
 	res = requests.get(url)
+	res_json = res.json()
 
-	if res.status_code != 200:
+	if res.status_code != 200 or res_json['totalItems'] < 1:
 		return None
 
-	return res.json()['items']
+	return res_json['items']
 
 
 # Get book info by id form api
