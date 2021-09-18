@@ -1,6 +1,8 @@
 # Bookish
 A flask based app to keep track of what books you are reading, have read and want to read.
 
+Note: This app, although completely working, is just a rough draft and has not been refined nor checked for bugs.
+
 ---
 
 ## Setup
