@@ -8,8 +8,8 @@ Note: This app, although completely working, is just a rough draft and has not b
 ## Setup
 - Clone this repo to your desktop.
 - cd to the root directory of this project and create and run a python virtual enviornment (recommended).
-- Run pip install -r requirements.txt to install all the dependencies.
-- run `set FLASK_APP=project` from the root directory.
+- Run `pip install -r requirements.txt` to install all the dependencies.
+- Run `set FLASK_APP=project` from the root directory.
 
 ## Usage
 To run the app, run `flask run` on your terminal from the root directory.
